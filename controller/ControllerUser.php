@@ -45,26 +45,35 @@ class ControllerUser extends Controller {
         if ($_SERVER['REQUEST_METHOD'] === "POST") {
             if (! empty($_POST['email']) && ! empty($_POST['password']) && ! empty($_POST['password_verify'])) {
                 if ($_POST['password'] === $_POST['password_verify']) {
-                    $model = new ModelUser();
-                    if ($model->checkUserMail($_POST['email']) && $model->checkUserName($_POST['username'])) {
-                        $username = $_POST['username'];
-                        $email    = $_POST['email'];
-                        $password = $_POST['password'];
 
-                        $model->createTempUser($username, $email, $password, $token);
+                    $passwordPattern = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/";
 
-                        // Envoyer l'email de vérification
-                        $mailer           = new Mailer($token);
-                        $verificationLink = "http://nihon/verify/?email=$email&code=$token";
-                        $mailer->sendVerificationEmail($email, $username, $verificationLink);
-
-                        echo "Your account was created ! An email has been sent, please check it out to verify your email.";
-
-                        require_once './view/home.php';
+                    if (!preg_match($passwordPattern, $_POST['password'])) {
+                        echo "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+                        require_once './view/register.php';
                     } else {
-                        echo "Email or username is already taken.";
-                        require_once './view/login.php';
+                        $model = new ModelUser();
+                        if ($model->checkUserMail($_POST['email']) && $model->checkUserName($_POST['username'])) {
+                            $username = $_POST['username'];
+                            $email    = $_POST['email'];
+                            $password = $_POST['password'];
+    
+                            $model->createTempUser($username, $email, $password, $token);
+    
+                            // Envoyer l'email de vérification
+                            $mailer           = new Mailer($token);
+                            $verificationLink = "http://nihon/verify/?email=$email&code=$token";
+                            $mailer->sendVerificationEmail($email, $username, $verificationLink);
+    
+                            echo "Your account was created ! An email has been sent, please check it out to verify your email.";
+    
+                            require_once './view/home.php';
+                        } else {
+                            echo "Email or username is already taken.";
+                            require_once './view/login.php';
+                        }
                     }
+
                 } else {
                     echo 'Passwords do not match.';
                     require_once './view/register.php';

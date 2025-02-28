@@ -42,7 +42,7 @@
     <main class=connexion>
         <div class="form-container">
             <h1> Subscription </h1>
-            <form action="/nihon/register" method="POST">
+            <form action="/register" method="POST">
                 <input type="text" name="username" placeholder="Username">
                 <input type="email" name="email" placeholder="Email">
                 <input type="password" name="password" placeholder="Password">
